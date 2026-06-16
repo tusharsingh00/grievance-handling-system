@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Submit Feedback - {{ grievance.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Provide Feedback</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Grievance Details</h5>
+                        <p><strong>Title:</strong> {{ grievance.title }}</p>
+                        <p><strong>Status:</strong> {{ grievance.get_status_display }}</p>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Submit Feedback
+                            </button>
+                            <a href="{% url 'grievance-detail' grievance.pk %}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

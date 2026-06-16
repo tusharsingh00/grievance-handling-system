@@ -1,0 +1,244 @@
+
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Report Generator{% endblock %}
+
+{% block content %}
+<style>
+/* General Container Styling */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Styling */
+h1 {
+    font-size: 2rem;
+    color: #343a40;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Card and Section Styling */
+.card {
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(45deg, #007bff, #6c63ff);
+    color: #fff;
+    font-weight: bold;
+    padding: 1rem;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Form Styling */
+.g-3 .form-control, .g-3 .form-select {
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.g-3 .form-control:focus, .g-3 .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-3d {
+    color: #fff;
+    font-weight: bold;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-3d:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-3d.btn-primary::before,
+.btn-3d.btn-success::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, #6c63ff, #007bff);
+    z-index: -1;
+    filter: blur(4px);
+}
+
+.btn-3d.btn-success::before {
+    background: linear-gradient(45deg, #28a745, #218838);
+}
+
+/* Badge Styling */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.4em 0.8em;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
+
+.bg-success { background-color: #28a745 !important; }
+.bg-warning { background-color: #ffc107 !important; color: #343a40 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+
+/* Table Styling */
+.table-responsive {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.table {
+    color: #495057;
+    border: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f9f9fb;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+th, td {
+    padding: 1em;
+    text-align: center;
+    vertical-align: middle;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Card */
+@media (max-width: 768px) {
+    .card {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .table-responsive {
+        animation: none;
+    }
+}
+</style>
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Report Generator</h1>
+        </div>
+    </div>
+
+    <!-- Filters Card -->
+     <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Filter Options</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    {{ form.start_date|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.end_date|as_crispy_field }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.status|as_crispy_field }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.category|as_crispy_field }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.priority|as_crispy_field }}
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-3d btn-primary">
+                        <i class="bi bi-filter"></i> Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div> 
+
+    <!-- Results Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Results</h5>
+            <div class="btn-group">
+                <a href="?{{ request.GET.urlencode }}&export_format=csv" class="btn btn-3d btn-success">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                </a>
+                <a href="?{{ request.GET.urlencode }}&export_format=excel" class="btn btn-3d btn-success">
+                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Submitted By</th>
+                            <th>Created At</th>
+                            <th>Resolved At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grievance in grievances %}
+                        <tr>
+                            <td>{{ grievance.id }}</td>
+                            <td>
+                                <a href="{% url 'grievance-detail' grievance.pk %}">
+                                    {{ grievance.title }}
+                                </a>
+                            </td>
+                            <td>{{ grievance.category.name }}</td>
+                            <td>
+                                <span class="badge bg-{{ grievance.status }}"> 
+                                    {{ grievance.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ grievance.priority }}">
+                                    {{ grievance.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>{{ grievance.submitted_by.get_full_name }}</td>
+                            <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                            <td>{{ grievance.resolved_at|date:"M d, Y"|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No grievances found matching the criteria</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

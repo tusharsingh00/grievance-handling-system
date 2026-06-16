@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Admin Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0">Admin Dashboard</h2>
+                            <p class="mb-0">System Overview</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exportModal">
+                                <i class="bi bi-download"></i> Export Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Total Users</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ total_users }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-primary text-white rounded-circle shadow">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Departments</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ total_departments }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                                <i class="bi bi-building"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Total Grievances</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ total_grievances }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Resolution Rate</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ resolution_rate }}%</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Department Performance -->
+        <div class="col-xl-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Department Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Total</th>
+                                    <th>Pending</th>
+                                    <th>Resolved</th>
+                                    <th>Resolution Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in department_stats %}
+                                <tr>
+                                    <td>{{ dept.name }}</td>
+                                    <td>{{ dept.total }}</td>
+                                    <td>{{ dept.pending }}</td>
+                                    <td>{{ dept.resolved }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">{{ dept.resolution_rate }}%</span>
+                                            <div class="progress" style="width: 100px">
+                                                <div class="progress-bar bg-success" 
+                                                     role="progressbar" 
+                                                     style="width: {{ dept.resolution_rate }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="col-xl-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Users</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for user in recent_users %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ user.get_full_name }}</h6>
+                                    <small class="text-muted">{{ user.email }}</small>
+                                </div>
+                                <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grievances -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Grievances</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Submitted By</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grievance in recent_grievances %}
+                                <tr>
+                                    <td>{{ grievance.title }}</td>
+                                    <td>{{ grievance.department.name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.status }}">
+                                            {{ grievance.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.priority }}">
+                                            {{ grievance.get_priority_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ grievance.submitted_by.get_full_name }}</td>
+                                    <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'grievance-detail' grievance.pk %}" 
+                                           class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <a href="{% url 'export-users' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people me-2"></i> Export Users
+                    </a>
+                    <a href="{% url 'export-grievances' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-text me-2"></i> Export Grievances
+                    </a>
+                    <a href="{% url 'export-departments' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-building me-2"></i> Export Departments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-shape i {
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+    border: 0;
+}
+
+.table td, .table th {
+    white-space: nowrap;
+}
+
+.progress {
+    height: 8px;
+}
+</style>
+{% endblock %}

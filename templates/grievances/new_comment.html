@@ -1,0 +1,73 @@
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load humanize %}
+{% load staticfiles %}
+{% load url from future %}
+{% load bootstrap4 %}
+{% load bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load humanize %}
+{% load staticfiles %}
+{% load url from future %}
+{% load bootstrap4 %}
+{% load bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load humanize %}
+{% load staticfiles %}
+{% load url from future %}
+{% load bootstrap4 %}
+{% load bootstrap5 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievance Details</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Your HTML content here -->
+    <!-- Notification -->
+<div id="notification-container"></div>
+
+<!-- Comments Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Comments</h5>
+    </div>
+    <div class="card-body">
+        {% for comment in grievance.comments.all %}
+        <div class="mb-3 pb-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>{{ comment.user.get_full_name|default:comment.user.username }}</strong>
+                <small class="text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+            </div>
+            <p class="mb-2">{{ comment.content }}</p>
+            {% if comment.attachment %}
+            <a href="{{ comment.attachment.url }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-paperclip"></i> View Attachment
+            </a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-muted">No comments yet.</p>
+        {% endfor %}
+
+        <!-- Comment Form -->
+        <form id="comment-form" method="post" action="{% url 'add-comment' grievance.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ comment_form|crispy }}
+            <button type="submit" class="btn btn-primary">Add Comment</button>
+        </form>
+    </div>
+</div>
+
+    <!-- Include the JavaScript file -->
+    <script src="{% static 'js/comment.js' %}"></script>
+</body>
+</html>

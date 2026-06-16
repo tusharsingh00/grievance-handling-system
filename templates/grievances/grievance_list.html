@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Grievances - {{ block.super }}{% endblock %}
+
+{% block content %}
+<style>
+/* General Container */
+.container {
+    background-color: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Page Title */
+h1 {
+    color: #2c3e50;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+/* Table */
+.table-hover tbody tr:hover {
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+}
+.table th {
+    background-color: #e3f2fd;
+    color: #34495e;
+    font-weight: bold;
+}
+
+/* Badges for Status */
+.badge-success {
+    background-color: #2ecc71;
+}
+.badge-warning {
+    background-color: #f39c12;
+}
+.badge-resolved {
+    background-color: #3498db;
+}
+.badge-closed {
+    background-color: #e74c3c;
+}
+
+/* Priority Badges */
+.badge-priority {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.badge-priority.urgent {
+    background-color: #e74c3c; /* Bright Red for Urgent */
+    color: white;
+}
+
+.badge-priority.high {
+    background-color: #f39c12; /* Orange for High */
+    color: white;
+}
+
+.badge-priority.medium {
+    background-color: #3498db; /* Blue for Medium */
+    color: white;
+}
+
+.badge-priority.low {
+    background-color: #2ecc71; /* Green for Low */
+    color: white;
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+.pagination .page-link {
+    color: #34495e;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.pagination .page-link:hover {
+    background-color: #d5e9f7;
+}
+
+/* Card */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Filters */
+.form-select, .form-control {
+    border-radius: 5px;
+    border: 1px solid #dcdcdc;
+    transition: border-color 0.3s ease;
+}
+.form-select:focus, .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Animation for card load */
+.card, .table tr {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Grievances</h1>
+        <a href="{% url 'grievance-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Grievance
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search grievances...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grievance in grievances %}
+                        <tr>
+                            <td>#{{ grievance.id }}</td>
+                            <td>
+                                <a href="{% url 'grievance-detail' grievance.pk %}">
+                                    {{ grievance.title }}
+                                </a>
+                            </td>
+                            <td>{{ grievance.category.name }}</td>
+                            <td>
+                                <span class="badge bg-{{ grievance.status|yesno:'success,warning' }}">
+                                    {{ grievance.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-priority {{ grievance.priority|lower }}">
+                                    {{ grievance.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'grievance-detail' grievance.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if user.role in 'staff,admin' or grievance.submitted_by == user %}
+                                    <a href="{% url 'grievance-update' grievance.pk %}" 
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No grievances found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

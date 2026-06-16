@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grievance Handling System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background-color: #f8f9fa;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+        .sidebar .nav-link {
+            color: #333;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: #007bff;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+        }
+        .content {
+            padding: 20px;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+        }
+        .stats-card {
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+        .stats-card:hover {
+            transform: translateY(-3px);
+        }
+        .stats-card.primary {
+            border-left-color: #007bff;
+        }
+        .stats-card.success {
+            border-left-color: #28a745;
+        }
+        .stats-card.warning {
+            border-left-color: #ffc107;
+        }
+        .stats-card.info {
+            border-left-color: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">
+                <i class="bi bi-shield-check"></i> GHS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                        {% if user.role in 'staff,admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'department-dashboard' %}">
+                                <i class="bi bi-building"></i> Department
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'grievance-list' %}">
+                                <i class="bi bi-file-text"></i> Grievances
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'analytics-dashboard' %}">
+                                <i class="bi bi-graph-up"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'generate-report' %}">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Reports
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="bi bi-person"></i> Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            {% if user.is_authenticated %}
+            <div class="col-md-2 sidebar py-3">
+                <ul class="nav flex-column">
+                    {% if user.role in 'staff,admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'department-dashboard' %}active{% endif %}" 
+                           href="{% url 'department-dashboard' %}">
+                            <i class="bi bi-building"></i> Department Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                           href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'grievance' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'grievance-list' %}">
+                            <i class="bi bi-file-text"></i> Grievances
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'grievance-create' %}">
+                            <i class="bi bi-plus-circle"></i> New Grievance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'analytics-dashboard' %}active{% endif %}" 
+                           href="{% url 'analytics-dashboard' %}">
+                            <i class="bi bi-graph-up"></i> Analytics
+                        </a>
+                    <!-- </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'generate-report' %}active{% endif %}" 
+                           href="{% url 'generate-report' %}">
+                            <i class="bi bi-file-earmark-spreadsheet"></i> Reports
+                        </a>
+                    </li> -->
+                    {% if user.is_authenticated %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-file-earmark-text"></i> Reports
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item" href="{% url 'reports' %}">
+                    <i class="bi bi-graph-up"></i> View Reports
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="{% url 'generate-report' %}">
+                    <i class="bi bi-file-earmark-plus"></i> Generate Report
+                </a>
+            </li>
+        </ul>
+    </li>
+{% endif %}
+                    {% if user.role in 'staff,admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reports' %}">
+                            <i class="bi bi-graph-up"></i> Department Reports
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="col">
+                <div class="content">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

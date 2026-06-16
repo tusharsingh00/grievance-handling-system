@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<style>
+     /* Badge styling for Status and Priority fields */
+     .badge {
+            font-weight: 500;
+            color: white;
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            font-size: 0.875em;
+        }
+
+        /* Status colors */
+        .bg-New {
+            background-color: #0d6efd; /* Bootstrap primary color */
+        }
+
+        .bg-InProgress {
+            background-color: #ffc107; /* Bootstrap warning color */
+        }
+
+        .bg-Resolved {
+            background-color: #198754; /* Bootstrap success color */
+        }
+
+        .bg-Closed {
+            background-color: #6c757d; /* Bootstrap secondary color */
+        }
+
+        /* Priority colors */
+        .bg-Low {
+            background-color: #20c997; /* Teal */
+        }
+
+        .bg-Medium {
+            background-color: #0dcaf0; /* Cyan */
+        }
+
+        .bg-High {
+            background-color: #fd7e14; /* Orange */
+        }
+
+        .bg-Urgent {
+            background-color: #dc3545; /* Red */
+        }
+</style>
+<div class="container">
+    <h1 class="mb-4">Dashboard</h1>
+    
+    <!-- Notifications for Updates -->
+    {% if recent_updates %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>Recent Updates:</strong>
+        <ul class="mb-0">
+            {% for grievance in recent_updates %}
+            <li>
+                Your grievance "{{ grievance.title }}" has been updated to {{ grievance.get_status_display }}.
+                {% if grievance.status == 'resolved' and not grievance.feedback %}
+                <a href="{% url 'submit-feedback' grievance.pk %}" class="alert-link">Provide feedback</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <!-- Feedback Required Notifications -->
+    {% if feedback_required %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Feedback Required:</strong>
+        <ul class="mb-0">
+            {% for grievance in feedback_required %}
+            <li>
+                Please provide feedback for your resolved grievance "{{ grievance.title }}".
+                <a href="{% url 'submit-feedback' grievance.pk %}" class="alert-link">Submit feedback</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <!-- Grievance Statistics -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Grievances</h5>
+                    <h2 class="card-text">{{ total_grievances }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2 class="card-text">{{ pending_grievances }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Resolved</h5>
+                    <h2 class="card-text">{{ resolved_grievances }}</h2>
+                </div>
+            </div>
+        </div>
+        {% if user.role in 'staff,admin' %}
+        <div class="col-md-3">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue</h5>
+                    <h2 class="card-text">{{ overdue_grievances }}</h2>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Department Statistics (for staff and admin only) -->
+    {% if user.role in 'staff,admin' and department_stats %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Department Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>{{ department_stats.total }}</h3>
+                                <p class="text-muted">Total Department Grievances</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>{{ department_stats.pending }}</h3>
+                                <p class="text-muted">Department Pending</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>{{ department_stats.resolved }}</h3>
+                                <p class="text-muted">Department Resolved</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ department_stats.resolved_percentage }}%">
+                            Resolved ({{ department_stats.resolved_percentage|floatformat:1 }}%)
+                        </div>
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ department_stats.pending_percentage }}%">
+                            Pending ({{ department_stats.pending_percentage|floatformat:1 }}%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Grievances and Quick Actions -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Grievances</h5>
+                    <a href="{% url 'grievance-list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grievance in recent_grievances %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'grievance-detail' grievance.pk %}">
+                                            {{ grievance.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ grievance.category.name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.status|yesno:'success,warning' }}">
+                                            {{ grievance.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.priority }}">
+                                            {{ grievance.get_priority_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No recent grievances</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'grievance-create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> New Grievance
+                        </a>
+                        <a href="{% url 'grievance-list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-list"></i> View All Grievances
+                        </a>
+                        {% if user.role in 'staff,admin' %}
+                        <a href="{% url 'reports' %}" class="btn btn-outline-info">
+                            <i class="bi bi-graph-up"></i> View Reports
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if user.role in 'staff,admin' %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Department Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Assigned to You</h6>
+                        <h3>{{ assigned_grievances }}</h3>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Overdue Tasks</h6>
+                        <h3 class="text-danger">{{ overdue_grievances }}</h3>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ resolved_percentage }}%">
+                            Resolved ({{ resolved_percentage|floatformat:1 }}%)
+                        </div>
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ pending_percentage }}%">
+                            Pending ({{ pending_percentage|floatformat:1 }}%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

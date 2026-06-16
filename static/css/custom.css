@@ -1,0 +1,212 @@
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.stats-card {
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 300px;
+    width: 100%;
+}
+
+.feedback-rating {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.progress-bar-animated {
+    animation: progress 1s ease-in-out;
+}
+
+@keyframes progress {
+    from {
+        width: 0;
+    }
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,123,255,.05);
+    transform: scale(1.01);
+}
+
+.badge {
+    transition: all 0.2s ease;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,.1);
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+.nav-link {
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    transform: translateX(5px);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    border-color: #80bdff;
+}
+
+.dropdown-item {
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.alert {
+    animation: slideIn 0.3s ease-out;
+}
+
+.feedback-form {
+    max-width: 600px;
+    margin: auto;
+}
+
+.rating-input {
+    display: none;
+}
+
+.rating-star {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ffc107;
+}
+
+.rating-star:hover {
+    transform: scale(1.2);
+}
+
+
+
+
+
+.badge-status {
+    font-size: 0.875em;
+    padding: 0.5em 0.75em;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.badge-status.new {
+    background-color: #3498db; /* Blue for New */
+    color: white;
+}
+
+.badge-status.in_progress {
+    background-color: #f39c12; /* Orange for In Progress */
+    color: white;
+}
+
+.badge-status.resolved {
+    background-color: #2ecc71; /* Green for Resolved */
+    color: white;
+}
+
+.badge-status.closed {
+    background-color: #e74c3c; /* Red for Closed */
+    color: white;
+}
+
+.badge-priority {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.badge-priority.low {
+    background-color: #2ecc71; /* Green for Low */
+    color: white;
+}
+
+.badge-priority.medium {
+    background-color: #3498db; /* Blue for Medium */
+    color: white;
+}
+
+.badge-priority.high {
+    background-color: #f39c12; /* Orange for High */
+    color: white;
+}
+
+.badge-priority.urgent {
+    background-color: #e74c3c; /* Red for Urgent */
+    color: white;
+}

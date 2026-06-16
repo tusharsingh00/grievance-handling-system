@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Department Grievances{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Department Grievances</h1>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        {% for status in status_choices %}
+                        <option value="{{ status.0 }}" {% if current_status == status.0 %}selected{% endif %}>
+                            {{ status.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grievances List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Submitted By</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grievance in grievances %}
+                        <tr>
+                            <td>#{{ grievance.id }}</td>
+                            <td>{{ grievance.title }}</td>
+                            <td>{{ grievance.submitted_by.get_full_name }}</td>
+                            <td>
+                                <span class="badge bg-{{ grievance.status }}">
+                                    {{ grievance.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ grievance.priority }}">
+                                    {{ grievance.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'update-grievance-status' grievance.pk %}" 
+                                   class="btn btn-sm btn-primary">
+                                    Update Status
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No grievances found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

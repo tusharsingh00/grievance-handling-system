@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Department Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Department Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0">{{ department.get_name_display }}</h2>
+                            <p class="mb-0">Department Dashboard</p>
+                        </div>
+                        <div class="text-end">
+                            <p class="mb-0">Staff Member: {{ user.get_full_name }}</p>
+                            <p class="mb-0">Role: {{ user.get_role_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Total Grievances</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ total_grievances }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-primary text-white rounded-circle shadow">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Pending</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ pending_grievances }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">Resolved</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ resolved_grievances }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-muted mb-0">High Priority</h6>
+                            <span class="h3 font-weight-bold mb-0">{{ high_priority_grievances }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grievances Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Grievances</h5>
+                        <a href="{% url 'department-grievance-list' %}" class="btn btn-sm btn-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Priority</th>
+                                    <th scope="col">Submitted By</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grievance in recent_grievances %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'grievance-detail' grievance.pk %}">
+                                            {{ grievance.title }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.status }}">
+                                            {{ grievance.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ grievance.priority }}">
+                                            {{ grievance.get_priority_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if grievance.submitted_by.get_full_name %}
+                                            {{ grievance.submitted_by.get_full_name }}
+                                        {% else %}
+                                            {{ grievance.submitted_by.username }}
+                                        {% endif %}
+                                        <br>
+                                        <small class="text-muted">{{ grievance.submitted_by.email }}</small>
+                                    </td>
+                                    <td>{{ grievance.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'update-grievance-status' grievance.pk %}" 
+                                           class="btn btn-sm btn-primary">Update Status</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No grievances found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-shape i {
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+    border: 0;
+}
+
+.table td, .table th {
+    white-space: nowrap;
+}
+
+.badge {
+    font-size: 0.875em;
+    padding: 0.5em 0.75em;
+}
+/* Priority Badge Colors */
+.badge-high {
+    background-color: #edc420;
+    color: #ffffff;
+}
+
+.badge-medium {
+    background-color: #ffed4a;
+    color: #212529;
+}
+
+.badge-low {
+    background-color: #38c172;
+    color: #ffffff;
+}
+.badge-urgent {
+    background-color: #ea2e28;
+    color: #f9f8f8;
+}
+</style>
+{% endblock %}
