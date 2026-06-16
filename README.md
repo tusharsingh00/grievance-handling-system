@@ -104,7 +104,7 @@ http://127.0.0.1:8000/
 
 ### Report_generations
 
-![Report_generations](screenshots/a report_generations.png)
+![Report_generations](screenshots/report_generations.png)
 
 ### Admin Dashboard
 
