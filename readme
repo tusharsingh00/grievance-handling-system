@@ -49,7 +49,7 @@ grievance_system/
 ### Clone Repository
 
 ```bash
-https://github.com/tusharsingh00/grievance-handling-system.git
+git clone https://github.com/tusharsingh00/grievance-handling-system.git
 ```
 
 ### Move to Project Directory
@@ -98,6 +98,18 @@ http://127.0.0.1:8000/
 
 ## Screenshots
 
+### Grievance_list
+
+![All_grievance_list](screenshots/all_grievance_list.png)
+
+### Report_generations
+
+![Report_generations](screenshots/a report_generations.png)
+
+### Admin Dashboard
+
+![Admin_dashboard](screenshots/Admin_dashboard.png)
+
 
 
 ## Future Enhancements
@@ -108,3 +120,12 @@ http://127.0.0.1:8000/
 - Role-Based Access Control
 - REST API Integration
 
+## Documentation
+
+- [Project Report](docs/grievance_handling_system-report.pdf)
+
+## Certifications
+
+### Infosys Springboard Virtual Internship Certificate
+
+![Infosys Internship Certificate](docs/certificate.png)
